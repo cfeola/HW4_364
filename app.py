@@ -57,8 +57,6 @@ login_manager.init_app(app) # set up login manager
 # TODO 364: Set up association Table between search terms and GIFs (you can call it anything you want, we suggest 'tags' or 'search_gifs').
 search_gifs = db.Table('search_gifs', db.Column('search_id', db.Integer,db.ForeignKey('searchterm.id')),db.Column('gif_id',db.Integer,db.ForeignKey('gif.id')))
 
-
-
 # TODO 364: Set up association Table between GIFs and collections prepared by user (you can call it anything you want. We suggest: user_collection)
 
 user_collection = db.Table('user_collection', db.Column('gif_id', db.Integer,db.ForeignKey('gif.id')),db.Column('personalgifcollection_id',db.Integer,db.ForeignKey('personalgifcollection.id')))
@@ -253,6 +251,7 @@ def get_or_create_collection(name, current_user, gif_list=[]):
 
     # In other words, based on the input to this function, if there exists a collection with the input name, associated with the current user, then this function should return that PersonalGifCollection instance.
     user_id = User.query.filter_by(username=current_user).first().id
+    print(user_id)
     collection = PersonalGifCollection.query.filter_by(name=name, User_id = user_id).first()
     if not collection:
         new_collection = PersonalGifCollection(name=name, User_id = user_id)
@@ -369,6 +368,7 @@ def create_collection():
             obj = get_gif_by_id(each)
             gif_object_list.append(obj)
 
+        print(current_user.username)
         get_or_create_collection(name = name, current_user = current_user.username,gif_list = gif_object_list)
         return redirect(url_for('collections'))
     
@@ -385,7 +385,7 @@ def create_collection():
 def collections():
     # Replace with code
     # TODO 364: This view function should render the collections.html template so that only the current user's personal gif collection links will render in that template. Make sure to examine the template so that you send it the correct data!
-    collections = PersonalGifCollection.query.all()
+    collections = PersonalGifCollection.query.filter_by(User_id = current_user.id).all()
     return render_template('collections.html', collections = collections)
 
 # Provided
